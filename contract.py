@@ -5,17 +5,19 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
 
-# --- 1. Connection ---
+# --- 1. Connection Setup ---
+# This looks for credentials in the Streamlit Cloud "Secrets" tab
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 def log_to_sheet(name, job, location):
     try:
-        # Use the name of the tab at the bottom of your sheet
+        # worksheet name should match the tab name in your Google Sheet (usually Sheet1)
         sheet_name = "Sheet1" 
         
-        # Read existing data to append to it
+        # Fetch existing data (ttl=0 ensures we don't use old cached data)
         existing_data = conn.read(worksheet=sheet_name, ttl=0)
         
+        # Create new row
         new_entry = pd.DataFrame([{
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Client Name": name,
@@ -23,67 +25,105 @@ def log_to_sheet(name, job, location):
             "Location": location
         }])
         
+        # Combine and update
         updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
         conn.update(worksheet=sheet_name, data=updated_df)
-        st.toast("🚀 Logged to Google Sheets!")
+        st.toast("🚀 Activity logged to Google Sheets!")
     except Exception as e:
-        st.error(f"Sheet Error: {e}")
+        st.error(f"Sheet logging failed: {e}")
 
-# --- 2. PDF Generation ---
-def generate_contract(name, place, building, contact, date1, date2, job, sig_file, sx, sy):
-    # Use relative paths for GitHub (upload these images to your repo)
-    p1 = Image.open("temp.png").convert("RGB")
-    p2 = Image.open("temp2.png").convert("RGB")
+def generate_contract(name, place, building, contact, date1, date2, job, sig_file, sig_x, sig_y):
+    # --- LOAD TEMPLATES ---
+    # IMPORTANT: Upload temp.png and temp2.png to your GitHub root folder
+    page1 = Image.open("temp.png").convert("RGB")
+    page2 = Image.open("temp2.png").convert("RGB")
     
-    draw1 = ImageDraw.Draw(p1)
-    draw2 = ImageDraw.Draw(p2)
+    draw1 = ImageDraw.Draw(page1)
+    draw2 = ImageDraw.Draw(page2)
     
-    # Ensure arial.ttf is uploaded to your GitHub repo!
+    # --- LOAD FONT ---
+    # Upload arial.ttf to GitHub or use default if it fails
     try:
-        font = ImageFont.truetype("arial.ttf", 12)
+        font = ImageFont.truetype("arial.ttf", 16)
     except:
         font = ImageFont.load_default()
     
-    # Draw Page 1
+    # --- DRAW ON PAGE 1 ---
     draw1.text((143, 619), name, fill="black", font=font)
     draw1.text((143, 649), place, fill="black", font=font)
-    draw1.text((619, 652), building, fill="black", font=font)
+    draw1.text((619, 650), building, fill="black", font=font)
     draw1.text((619, 682), contact, fill="black", font=font)
     draw1.text((403, 185), date1, fill="black", font=font)
     draw1.text((577, 185), date2, fill="black", font=font)
     draw1.text((259, 542), job, fill="black", font=font)
 
-    # Draw Page 2
-    draw2.text((143, 100), f"Contract Start Date: {date1}", fill="black", font=font)
+    # --- DRAW ON PAGE 2 ---
+    draw2.text((457, 231), f"{date1}", fill="black", font=font)
 
+    # --- HANDLE SIGNATURE ---
     if sig_file:
         sig = Image.open(sig_file).convert("RGBA")
-        sig = sig.resize((200, 80))
-        p1.paste(sig, (sx, sy), sig)
+        sig = sig.resize((200, 80)) 
+        # Pasting signature on Page 2 based on your code logic
+        page2.paste(sig, (sig_x, sig_y), sig) 
         
-    return p1, p2
+    return page1, page2
 
-# --- 3. UI ---
-st.title("📜 Contract Automator")
+# --- STREAMLIT UI ---
+st.set_page_config(page_title="Contract Automator", page_icon="📜")
+st.title("📜 Multi-Page Contract Generator")
 
-# Inputs
-name_in = st.text_input("Client Name")
-job_in = st.text_input("Job")
-loc_in = st.text_input("Location")
-# ... add your other inputs (date1, date2, etc) here ...
+# Dashboard Metric (Optional: Show how many contracts done)
+try:
+    total_data = conn.read(worksheet="Sheet1", ttl=3600)
+    st.metric("Total Contracts Logged", len(total_data))
+except:
+    pass
 
-sig_up = st.file_uploader("Sign Here", type=['png', 'jpg'])
-sx = st.number_input("Sig X", value=450)
-sy = st.number_input("Sig Y", value=1000)
+col1, col2 = st.columns(2)
+with col1:
+    name_input = st.text_input("Client Name")
+    place_input = st.text_input("Client Location")
+    job_input = st.text_input("Work/Job")
+    date1_input = st.text_input("Contract Start")
+with col2:
+    date2_input = st.text_input("Contract End")
+    building_input = st.text_input("Building")
+    contact_input = st.text_input("Contact No.")
 
-if st.button("Finish & Log"):
-    # (Assuming all other date/contact variables are defined)
-    p1, p2 = generate_contract(name_in, loc_in, "Bldg", "017...", "2026-03-17", "2027-03-17", job_in, sig_up, sx, sy)
-    
-    # 1. Log to Sheet
-    log_to_sheet(name_in, job_in, loc_in)
-    
-    # 2. PDF Download
-    buf = io.BytesIO()
-    p1.save(buf, format="PDF", save_all=True, append_images=[p2])
-    st.download_button("💾 Download Contract", buf.getvalue(), f"{name_in}.pdf")
+st.divider()
+
+# Signature and Positioning
+sig_upload = st.file_uploader("Upload Signature", type=['png', 'jpg'])
+c1, c2 = st.columns(2)
+with c1:
+    sig_x = st.number_input("Signature X", value=450)
+with c2:
+    sig_y = st.number_input("Signature Y", value=1000)
+
+if st.button("Generate 2-Page PDF & Log"):
+    if name_input and date1_input:
+        p1, p2 = generate_contract(
+            name_input, place_input, building_input, contact_input, 
+            date1_input, date2_input, job_input, sig_upload, sig_x, sig_y
+        )
+        
+        st.image(p1, caption="Page 1 Preview", use_column_width=True)
+        st.image(p2, caption="Page 2 Preview", use_column_width=True)
+        
+        # Save as Multi-page PDF
+        pdf_buffer = io.BytesIO()
+        p1.save(pdf_buffer, format="PDF", save_all=True, append_images=[p2], resolution=100.0)
+        
+        st.download_button(
+            label="💾 Download Full Contract",
+            data=pdf_buffer.getvalue(),
+            file_name=f"Contract_{name_input}.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+        
+        # Log to Google Sheets
+        log_to_sheet(name_input, job_input, place_input)
+    else:
+        st.warning("Please enter at least the Client Name and Start Date.")
