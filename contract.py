@@ -80,12 +80,12 @@ col1, col2 = st.columns(2)
 with col1:
     name_input = st.text_input("Client Name")
     place_input = st.text_input("Client Location")
-    job_input = st.text_input("Scope of Work")
-    date1_input = st.text_input("Contract Start")
+    job_input = st.text_input("Scope of Work", max_chars=50)
+    date1_input = st.text_input("Contract Start", max_chars=12, placeholder="dd/mm/yyyy"))
 with col2:
-    date2_input = st.text_input("Contract End")
-    building_input = st.text_input("Building")
-    contact_input = st.text_input("Contact No.")
+    date2_input = st.text_input("Contract End", max_chars=12, placeholder="dd/mm/yyyy"))
+    building_input = st.text_input("Building", max_chars=5, placeholder="e.g. RW33"))
+    contact_input = st.text_input("Contact No.", max_chars=15))
 
 st.divider()
 
