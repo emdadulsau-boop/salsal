@@ -81,9 +81,9 @@ with col1:
     name_input = st.text_input("Client Name")
     place_input = st.text_input("Client Location")
     job_input = st.text_input("Scope of Work (i.e. Tiles Fixing", max_chars=50)
-    date1_input = st.text_input("Contract Start Date (dd/mm/yyyy)", max_chars=12, placeholder="dd/mm/yyyy"))
+    date1_input = st.text_input("Contract Start Date (dd/mm/yyyy)", max_chars=12, placeholder="dd/mm/yyyy")
 with col2:
-    date2_input = st.text_input("Contract End Date (dd/mm/yyyy)", max_chars=12, placeholder="dd/mm/yyyy"))
+    date2_input = st.text_input("Contract End Date (dd/mm/yyyy)", max_chars=12, placeholder="dd/mm/yyyy")
     building_input = st.text_input("Building (i.e. RW999", max_chars=5))
     contact_input = st.text_input("Contact No.", max_chars=15))
 
