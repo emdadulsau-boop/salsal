@@ -97,7 +97,7 @@ with c1:
 with c2:
     sig_y = st.number_input("Signature Y", value=190)
 
-if st.button("Crreate Contract PDF & Log"):
+if st.button("Create Contract PDF & Log"):
     if name_input and date1_input:
         p1, p2 = generate_contract(
             name_input, place_input, building_input, contact_input, 
