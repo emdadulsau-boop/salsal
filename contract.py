@@ -11,26 +11,26 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 def log_to_sheet(name, job, location):
     try:
-        # worksheet name should match the tab name in your Google Sheet (usually Sheet1)
         sheet_name = "Sheet1" 
-        
-        # Fetch existing data (ttl=0 ensures we don't use old cached data)
+        # ttl=0 is important to avoid sending old data formats back to Google
         existing_data = conn.read(worksheet=sheet_name, ttl=0)
         
-        # Create new row
+        # Create new row - ensure these keys match Row 1 of your Sheet EXACTLY
         new_entry = pd.DataFrame([{
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Client Name": name,
-            "Job": job,
-            "Location": location
+            "Client Name": str(name),
+            "Job": str(job),
+            "Location": str(location)
         }])
         
-        # Combine and update
+        # Reorder new_entry to match the existing sheet columns to avoid 400 errors
         updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
+        
+        # This sends the update
         conn.update(worksheet=sheet_name, data=updated_df)
-        st.toast("🚀 Activity logged to Google Sheets!")
+        st.toast("✅ Logged successfully!")
     except Exception as e:
-        st.error(f"Sheet logging failed: {e}")
+        st.error(f"Sheet Error: {e}")
 
 def generate_contract(name, place, building, contact, date1, date2, job, sig_file, sig_x, sig_y):
     # --- LOAD TEMPLATES ---
