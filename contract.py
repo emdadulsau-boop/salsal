@@ -73,7 +73,7 @@ def generate_contract(name, place, building, contact, date1, date2, job, sig_fil
 
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="Contract Automator", page_icon="📜")
-st.subtitle("📜 Salsal Contract Creator")
+st.title("📜 Salsal Contract Creator")
 
 
 col1, col2 = st.columns(2)
