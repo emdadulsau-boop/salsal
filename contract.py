@@ -27,12 +27,12 @@ def log_to_sheet(name, job, location):
 
 def generate_contract(name, place, building, contact, date1, date2, job, sig_file, sig_x, sig_y):
     # --- PAGE 1 ---
-    page1 = Image.open("C:/Users/Tc/Desktop/temp.png").convert("RGB")
+    page1 = Image.open("temp.png").convert("RGB")
     draw1 = ImageDraw.Draw(page1)
     
     # --- PAGE 2 ---
     # Load your second image template here
-    page2 = Image.open("C:/Users/Tc/Desktop/temp2.png").convert("RGB")
+    page2 = Image.open("temp2.png").convert("RGB")
     draw2 = ImageDraw.Draw(page2)
     
     # Load font
