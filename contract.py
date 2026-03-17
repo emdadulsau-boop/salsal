@@ -9,7 +9,7 @@ from datetime import datetime
 # This looks for credentials in the Streamlit Cloud "Secrets" tab
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-def log_to_sheet(name, job, place):
+def log_to_sheet(name_input, job_input, place_input):
     try:
         sheet_name = "Sheet1" 
         # ttl=0 is important to avoid sending old data formats back to Google
@@ -18,9 +18,9 @@ def log_to_sheet(name, job, place):
         # Create new row - ensure these keys match Row 1 of your Sheet EXACTLY
         new_entry = pd.DataFrame([{
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Client Name": str(name),
-            "Job": str(job),
-            "Location": str(place)
+            "Client Name": str(name_input),
+            "Job": str(job_input),
+            "Location": str(place_input)
         }])
         
         # Reorder new_entry to match the existing sheet columns to avoid 400 errors
