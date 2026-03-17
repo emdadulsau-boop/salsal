@@ -60,7 +60,7 @@ def generate_contract(name, place, building, contact, date1, date2, job, sig_fil
     draw1.text((259, 542), job, fill="black", font=font)
 
     # --- DRAW ON PAGE 2 ---
-    draw2.text((457, 231), f"{date1}", fill="black", font=font)
+    draw2.text((457, 225), f"{date1}", fill="black", font=font)
 
     # --- HANDLE SIGNATURE ---
     if sig_file:
@@ -75,12 +75,6 @@ def generate_contract(name, place, building, contact, date1, date2, job, sig_fil
 st.set_page_config(page_title="Contract Automator", page_icon="📜")
 st.title("📜 Multi-Page Contract Generator")
 
-# Dashboard Metric (Optional: Show how many contracts done)
-try:
-    total_data = conn.read(worksheet="Sheet1", ttl=3600)
-    st.metric("Total Contracts Logged", len(total_data))
-except:
-    pass
 
 col1, col2 = st.columns(2)
 with col1:
