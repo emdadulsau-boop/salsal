@@ -93,9 +93,9 @@ st.divider()
 sig_upload = st.file_uploader("Upload Signature", type=['png', 'jpg'])
 c1, c2 = st.columns(2)
 with c1:
-    sig_x = st.number_input("Signature X", value=450)
+    sig_x = st.number_input("Signature X", value=150)
 with c2:
-    sig_y = st.number_input("Signature Y", value=1000)
+    sig_y = st.number_input("Signature Y", value=190)
 
 if st.button("Crreate Contract PDF & Log"):
     if name_input and date1_input:
