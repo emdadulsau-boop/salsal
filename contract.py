@@ -18,7 +18,7 @@ def log_to_sheet(name, job, place):
         # Create new row - ensure these keys match Row 1 of your Sheet EXACTLY
         new_entry = pd.DataFrame([{
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Client Name": str(name),
+            "Client": str(name),
             "Job": str(job),
             "Location": str(place)
         }])
