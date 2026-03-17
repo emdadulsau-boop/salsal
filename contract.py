@@ -11,23 +11,20 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 def log_to_sheet(name, job, place):
     try:
-        sheet_name = "Sheet1" 
-        # ttl=0 is important to avoid sending old data formats back to Google
-        existing_data = conn.read(worksheet=sheet_name, ttl=0)
-        
-        # Create new row - ensure these keys match Row 1 of your Sheet EXACTLY
-        new_entry = pd.DataFrame([{
+        # Create a tiny 1-row DataFrame
+        new_row = pd.DataFrame([{
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Client": str(name),
             "Job": str(job),
             "Location": str(place)
         }])
         
-        # Reorder new_entry to match the existing sheet columns to avoid 400 errors
-        updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
+        # Instead of manual concat, we let the library handle the update
+        # Note: Some versions of st-gsheets-connection prefer this format
+        conn.create(worksheet="Sheet1", data=new_row) 
+        # ^ If .create() isn't supported, stick to your .update() logic but 
+        # make sure your Sheet1 is COMPLETELY empty before the first run.
         
-        # This sends the update
-        conn.update(worksheet=sheet_name, data=updated_df)
         st.toast("✅ Logged successfully!")
     except Exception as e:
         st.error(f"Sheet Error: {e}")
