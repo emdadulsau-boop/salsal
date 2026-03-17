@@ -20,7 +20,7 @@ def log_to_sheet(name, job, location):
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Client Name": str(name),
             "Job": str(job),
-            "Location": str(location)
+            "Location": str(place)
         }])
         
         # Reorder new_entry to match the existing sheet columns to avoid 400 errors
