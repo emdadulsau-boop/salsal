@@ -80,7 +80,7 @@ col1, col2 = st.columns(2)
 with col1:
     name_input = st.text_input("Client Name")
     place_input = st.text_input("Client Location")
-    job_input = st.text_input("Work/Job")
+    job_input = st.text_input("Scope of Work")
     date1_input = st.text_input("Contract Start")
 with col2:
     date2_input = st.text_input("Contract End")
