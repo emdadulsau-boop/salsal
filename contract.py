@@ -11,23 +11,28 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 def log_to_sheet(name, job, place):
     try:
-        # Create a tiny 1-row DataFrame
-        new_row = pd.DataFrame([{
+        # 1. Fetch current data (ttl=0 ensures we don't use a cached version)
+        sheet_name = "Sheet1"
+        existing_data = conn.read(worksheet=sheet_name, ttl=0)
+        
+        # 2. Prepare the new row as a DataFrame
+        new_entry = pd.DataFrame([{
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Client": str(name),
+            "Client Name": str(name),
             "Job": str(job),
             "Location": str(place)
         }])
         
-        # Instead of manual concat, we let the library handle the update
-        # Note: Some versions of st-gsheets-connection prefer this format
-        conn.create(worksheet="Sheet1", data=new_row) 
-        # ^ If .create() isn't supported, stick to your .update() logic but 
-        # make sure your Sheet1 is COMPLETELY empty before the first run.
+        # 3. Append the new row to the existing data
+        # ignore_index=True prevents duplicate row numbers
+        updated_df = pd.concat([existing_data, new_entry], ignore_index=True)
         
-        st.toast("✅ Logged successfully!")
+        # 4. Overwrite the sheet with the newly combined table
+        conn.update(worksheet=sheet_name, data=updated_df)
+        
+        st.toast("✅ Google Sheet updated successfully!")
     except Exception as e:
-        st.error(f"Sheet Error: {e}")
+        st.error(f"Sheet Update Error: {e}")
 
 def generate_contract(name, place, building, contact, date1, date2, job, sig_file, sig_x, sig_y):
     # --- LOAD TEMPLATES ---
