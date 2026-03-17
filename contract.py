@@ -57,7 +57,7 @@ def generate_contract(name, place, building, contact, date1, date2, job, sig_fil
     draw1.text((619, 682), contact, fill="black", font=font)
     draw1.text((403, 185), date1, fill="black", font=font)
     draw1.text((577, 185), date2, fill="black", font=font)
-    draw1.text((259, 542), job, fill="black", font=font)
+    draw1.text((259, 548), job, fill="black", font=font)
 
     # --- DRAW ON PAGE 2 ---
     draw2.text((457, 225), f"{date1}", fill="black", font=font)
