@@ -9,7 +9,7 @@ from datetime import datetime
 # This looks for credentials in the Streamlit Cloud "Secrets" tab
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-def log_to_sheet(name, job, location):
+def log_to_sheet(name, job, place):
     try:
         sheet_name = "Sheet1" 
         # ttl=0 is important to avoid sending old data formats back to Google
